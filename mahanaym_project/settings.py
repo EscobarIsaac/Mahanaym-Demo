@@ -4,10 +4,15 @@ from datetime import timedelta
 # 1. Rutas base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 2. Configuración de seguridad para desarrollo
+# 2. Configuración de seguridad para desarrollo y producción
 SECRET_KEY = 'django-insecure-demo-mahanaym'
 DEBUG = True
+
+# Permitir que el servidor responda en Render
 ALLOWED_HOSTS = ['*']
+
+# Solución al error 403: Permitir que Django confíe en las peticiones de tu dominio en la nube
+CSRF_TRUSTED_ORIGINS = ['https://mahanaym-demo.onrender.com']
 
 # 3. Aplicaciones instaladas del sistema y dependencias
 INSTALLED_APPS = [
@@ -98,5 +103,5 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# 11. Configuración obligatoria de archivos estáticos (Solución al último error)
+# 11. Configuración obligatoria de archivos estáticos
 STATIC_URL = 'static/'
