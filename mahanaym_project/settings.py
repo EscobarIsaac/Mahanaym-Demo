@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 2. Configuración de seguridad para desarrollo
 SECRET_KEY = 'django-insecure-demo-mahanaym'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # 3. Aplicaciones instaladas del sistema y dependencias
 INSTALLED_APPS = [
