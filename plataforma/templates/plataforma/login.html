@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mahanaym Moodle - Iniciar Sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-96 border-t-8 border-blue-600">
+        <div class="text-center mb-6">
+            <span class="text-4xl">🎓</span>
+            <h2 class="text-2xl font-black text-slate-800 mt-2">Colegio Mahanaym</h2>
+            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mt-1">Plataforma Académica Estilo Moodle</p>
+        </div>
+
+        <!-- Muestra errores reales si fallan las credenciales -->
+        {% if error %}
+        <div class="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-4 text-xs font-semibold text-center">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Envío nativo POST directo a la vista de Django -->
+        <form method="POST" action="{% url 'vista_login' %}" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1">Nombre de Usuario:</label>
+                <input type="text" name="username" class="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:border-blue-500 font-medium text-sm" required placeholder="ej: profesor1">
+            </div>
+            <div>
+                <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1">Contraseña de Acceso:</label>
+                <input type="password" name="password" class="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:border-blue-500 font-medium text-sm" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition shadow-md text-sm uppercase tracking-wider">
+                Ingresar al Aula Virtual
+            </button>
+        </form>
+    </div>
+</body>
+</html>

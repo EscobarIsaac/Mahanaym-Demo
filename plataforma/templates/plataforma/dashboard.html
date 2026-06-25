@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mahanaym Moodle - {{ rol }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen" id="bodyMoodle" data-rol="{{ rol }}">
+    <nav class="bg-blue-800 text-white px-6 py-4 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🎓</span>
+            <h1 class="text-xl font-bold">Mahanaym Moodle <span class="text-xs bg-blue-600 px-2 py-0.5 rounded font-mono">{{ rol }}</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="userDisplay" class="font-medium"></span>
+            <a href="/logout/" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-sm font-bold transition shadow">Salir</a>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <div class="bg-white p-4 rounded-xl shadow-md border-t-4 border-slate-700 lg:col-span-1">
+            <h3 class="font-bold text-gray-700 text-sm uppercase mb-3 flex items-center gap-1">👥 Miembros de la Institución</h3>
+            <div id="listaTodosAlumnos" class="space-y-2 text-xs divide-y">
+                </div>
+        </div>
+
+        <div class="lg:col-span-3 space-y-6">
+
+            {% if rol == "Profesor" %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-xl shadow border-t-4 border-green-600 space-y-3">
+                    <h2 class="text-md font-bold text-gray-800">🚀 Crear Nueva Aula Virtual</h2>
+                    <form id="formVideo" class="space-y-2 text-xs">
+                        <div><label class="font-bold">Título de Clase:</label><input type="text" id="titulo" class="w-full p-2 border rounded" required></div>
+                        <div><label class="font-bold">Asignatura:</label><input type="text" id="materia" class="w-full p-2 border rounded" required></div>
+                        <div><label class="font-bold">Matricular Alumnos (Separados por coma):</label><input type="text" id="estudiantes_asignados" placeholder="ej: estudiante1" class="w-full p-2 border rounded" required></div>
+                        <div><label class="font-bold">Video Adjunto:</label><input type="file" id="video" required class="mt-1"></div>
+                        <button type="submit" class="bg-green-600 text-white font-bold p-2 rounded w-full hover:bg-green-700 transition">Publicar Aula</button>
+                    </form>
+                    <div id="tarjetaCodigo" class="hidden bg-green-50 p-2 border border-green-300 rounded text-center font-bold text-green-700">
+                        Código de Matrícula: <span id="codigoGenerado" class="text-lg tracking-widest block font-black"></span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow border-t-4 border-purple-600 space-y-3">
+                    <h2 class="text-md font-bold text-gray-800">📝 Diseñar Evaluación (Moodle Quiz)</h2>
+                    <form id="formCrearExamen" class="space-y-2 text-xs">
+                        <div><label class="font-bold">Código del Aula Destino:</label><input type="text" id="quizCodigo" class="w-full p-2 border rounded uppercase" required></div>
+                        <div><label class="font-bold">Pregunta Evaluativa:</label><input type="text" id="quizPregunta" class="w-full p-2 border rounded" required></div>
+                        <div><label class="font-bold">Opción A:</label><input type="text" id="quizA" class="w-full p-2 border rounded" required></div>
+                        <div><label class="font-bold">Opción B:</label><input type="text" id="quizB" class="w-full p-2 border rounded" required></div>
+                        <div><label class="font-bold">Opción Correcta:</label>
+                            <select id="quizCorrecta" class="w-full p-2 border rounded"><option value="A">Opción A</option><option value="B">Opción B</option></select>
+                        </div>
+                        <button type="submit" class="bg-purple-600 text-white font-bold p-2 rounded w-full hover:bg-purple-700 transition">Habilitar Prueba</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow border-t-4 border-orange-500">
+                <h2 class="text-md font-bold text-gray-800 mb-3">📋 Libreta de Entregas y Calificaciones Cuantitativas</h2>
+                <div class="overflow-x-auto text-xs">
+                    <table class="min-w-full text-left text-gray-500">
+                        <thead class="bg-gray-50 uppercase text-[10px] font-bold text-gray-700">
+                            <tr>
+                                <th class="p-3">Estudiante</th>
+                                <th class="p-3">Asignatura</th>
+                                <th class="p-3">Archivo Entregado</th>
+                                <th class="p-3">Nota Base /10</th>
+                                <th class="p-3">Ponderar Puntos</th>
+                                <th class="p-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCalificaciones" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+
+            {% if rol == "Estudiante" %}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-4 rounded-xl shadow border-t-4 border-indigo-600">
+                    <h2 class="font-bold text-gray-800 mb-3 text-sm">📚 Mis Asignaturas Cargadas</h2>
+                    <div id="listaCursosMoodle" class="space-y-2"></div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-5 rounded-xl shadow border-t-4 border-blue-600 space-y-4">
+                    <div id="aulaVacia" class="text-center p-8 text-gray-400 italic text-xs">Selecciona un curso de tu parrilla Moodle.</div>
+                    
+                    <div id="aulaActiva" class="hidden space-y-4 text-xs">
+                        <div class="bg-slate-900 text-white p-3 rounded-lg"><h3 id="viewTitulo" class="text-sm font-bold"></h3><p id="viewFile" class="text-[10px] text-gray-400 mt-0.5"></p></div>
+                        
+                        <div class="bg-black aspect-video rounded-lg flex items-center justify-center text-white font-bold relative shadow-inner">
+                            <span class="text-4xl">▶️</span>
+                            <div class="absolute bottom-2 left-2 bg-red-600 text-[9px] px-1.5 py-0.5 rounded animate-pulse">REPRODUCIENDO MULTIMEDIA</div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-3 border rounded-lg">
+                                <h4 class="font-bold mb-1 uppercase text-[10px]">📤 Entregar Actividad Escrita</h4>
+                                <form id="formEntregaTarea" class="space-y-2"><input type="file" id="archivoTarea" class="text-[10px]" required><button type="submit" class="bg-indigo-600 text-white p-1 rounded w-full font-bold">Subir Entrega</button></form>
+                            </div>
+                            <div class="bg-purple-50 p-3 border border-purple-200 rounded-lg" id="zonaQuiz">
+                                <h4 class="font-bold mb-1 uppercase text-[10px] text-purple-900">📝 Examen Disponible</h4>
+                                <button onclick="cargarExamenEstudiante()" class="bg-purple-600 text-white font-bold p-1 rounded w-full">Rendir Prueba Online</button>
+                                <div id="boxQuizReal" class="hidden mt-2 space-y-2 bg-white p-2 rounded border border-purple-300">
+                                    <p id="qPregunta" class="font-semibold text-gray-800"></p>
+                                    <div class="flex flex-col gap-1"><button onclick="enviarRespuestaExamen('A')" id="qOptA" class="bg-gray-100 hover:bg-purple-100 p-1 rounded text-left"></button><button onclick="enviarRespuestaExamen('B')" id="qOptB" class="bg-gray-100 hover:bg-purple-100 p-1 rounded text-left"></button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow border-t-4 border-cyan-600">
+                <h2 class="text-sm font-bold text-gray-800 mb-3">📊 Mi Libreta de Calificaciones (Boletín Moodle)</h2>
+                <div class="overflow-x-auto text-xs">
+                    <table class="min-w-full text-left">
+                        <thead class="bg-gray-50 font-bold text-gray-700">
+                            <tr>
+                                <th class="p-2">Actividad / Evaluación</th>
+                                <th class="p-2">Nota Base /10</th>
+                                <th class="p-2">Ponderación Obtenida</th>
+                                <th class="p-2">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="boletinNotas" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 mb-8"><div id="consola" class="bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-[10px] shadow-inner max-h-[80px] overflow-y-auto">Sincronizado con MongoDB Atlas.</div></div>
+
+    <script>
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
+            return matches ? decodeURIComponent(matches[1]) : null;
+        }
+        const jwtToken = getCookie('jwt_access_token');
+        const userLog = getCookie('nombre_usuario');
+        if (!jwtToken) { window.location.href = '/'; }
+        document.getElementById('userDisplay').innerText = `Cuenta: ${userLog}`;
+
+        function logger(data) { document.getElementById('consola').innerText = JSON.stringify(data, null, 2); }
+        let codigoClaseActual = "";
+        let idExamenActivo = "";
+
+        // CARGA COMÚN: LISTADO DE ALUMNOS INSTITUCIONALES
+        async function cargarDirectorioAlumnos() {
+            const response = await fetch('/api/estudiante/estudiantes-activos/', { headers: { 'Authorization': 'Bearer ' + jwtToken } });
+            const data = await response.json();
+            const box = document.getElementById('listaTodosAlumnos');
+            if(box) {
+                box.innerHTML = `<p class="text-gray-400 font-bold pb-2">Total Alumnos: ${data.estudiantes ? data.estudiantes.length : 0}</p>`;
+                if(data.estudiantes) {
+                    data.estudiantes.forEach(e => {
+                        box.innerHTML += `<div class="py-1 text-slate-700 font-medium">🎓 ${e.username} <span class="text-gray-400 block text-[9px]">${e.email}</span></div>`;
+                    });
+                }
+            }
+        }
+        cargarDirectorioAlumnos();
+
+        // Leemos el rol de forma segura del DOM HTML para que VS Code no se confunda
+        const elRolReal = document.getElementById('bodyMoodle').getAttribute('data-rol');
+
+        // ================= SCRIPTS EXCLUSIVOS: ROL PROFESOR =================
+        if (elRolReal === "Profesor") {
+            const fVideo = document.getElementById('formVideo');
+            if(fVideo) {
+                fVideo.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData();
+                    formData.append('titulo', document.getElementById('titulo').value);
+                    formData.append('materia', document.getElementById('materia').value);
+                    formData.append('estudiantes_assigned', document.getElementById('estudiantes_asignados').value);
+                    formData.append('video', document.getElementById('video').files[0]);
+
+                    const response = await fetch('/api/profesor/subir-video/', { method: 'POST', headers: { 'Authorization': 'Bearer ' + jwtToken }, body: formData });
+                    const res = await response.json();
+                    if(response.ok) {
+                        document.getElementById('codigoGenerado').innerText = res.codigo_clase;
+                        document.getElementById('tarjetaCodigo').classList.remove('hidden');
+                        document.getElementById('formVideo').reset();
+                    }
+                });
+            }
+
+            const fExamen = document.getElementById('formCrearExamen');
+            if(fExamen) {
+                fExamen.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const response = await fetch('/api/profesor/crear-examen/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwtToken },
+                        body: JSON.stringify({
+                            codigo_clase: document.getElementById('quizCodigo').value,
+                            pregunta: document.getElementById('quizPregunta').value,
+                            opcion_a: document.getElementById('quizA').value,
+                            opcion_b: document.getElementById('quizB').value,
+                            correcta: document.getElementById('quizCorrecta').value
+                        })
+                    });
+                    if(response.ok) { alert("¡Prueba de Moodle Quiz habilitada con éxito!"); document.getElementById('formCrearExamen').reset(); }
+                });
+            }
+
+            async function cargarTareasProfesor() {
+                const response = await fetch('/api/profesor/listar-tareas/', { headers: { 'Authorization': 'Bearer ' + jwtToken } });
+                const data = await response.json();
+                const tbody = document.getElementById('tablaCalificaciones');
+                if(!tbody) return;
+                tbody.innerHTML = "";
+                if(data.tareas) {
+                    data.tareas.forEach(t => {
+                        tbody.innerHTML += `
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="p-3 font-bold">${t.estudiante}</td>
+                                <td class="p-3">${t.materia}</td>
+                                <td class="p-3 font-mono text-blue-600 underline">
+                                    <a href="/static/uploads/${t.archivo_adjunto}" download>${t.archivo_adjunto} (Descargar Recurso)</a>
+                                </td>
+                                <td class="p-3 font-bold text-center">${t.nota}</td>
+                                <td class="p-3 flex gap-1 items-center">
+                                    <input type="number" id="n_${t.entrega_id}" placeholder="Nota /10" class="w-14 border p-1 rounded text-center">
+                                    <input type="number" id="p_${t.entrega_id}" placeholder="Puntos" class="w-14 border p-1 rounded text-center">
+                                </td>
+                                <td class="p-3">
+                                    <button onclick="evaluarPonderado('${t.entrega_id}')" class="bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded font-bold">Calificar</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
+            cargarTareasProfesor();
+
+            window.evaluarPonderado = async function(id) {
+                const n = document.getElementById(`n_${id}`).value;
+                const p = document.getElementById(`p_${id}`).value;
+                if(!n || !p) return alert("Llena la nota base y los puntos de ponderación.");
+
+                const response = await fetch('/api/profesor/calificar/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwtToken },
+                    body: JSON.stringify({ entrega_id: id, nota: n, ponderacion: p })
+                });
+                if(response.ok) { alert("Ponderación calculada y guardada."); cargarTareasProfesor(); }
+            };
+        }
+
+
+        // ================= SCRIPTS EXCLUSIVOS: ROL ESTUDIANTE =================
+        if (elRolReal === "Estudiante") {
+            async function cargarMoodleEstudiante() {
+                const response = await fetch('/api/estudiante/mis-clases/', { headers: { 'Authorization': 'Bearer ' + jwtToken } });
+                const data = await response.json();
+                const container = document.getElementById('listaCursosMoodle');
+                if(!container) return;
+                container.innerHTML = "";
+                if(data.clases && data.clases.length > 0) {
+                    data.clases.forEach(c => {
+                        container.innerHTML += `
+                            <div onclick="entrarAula('${c.codigo_clase}', '${c.materia}', '${c.titulo}')" class="p-2 border rounded-lg bg-gray-50 hover:bg-indigo-50 hover:border-indigo-300 cursor-pointer transition text-xs">
+                                <p class="font-bold text-indigo-700 uppercase">${c.materia}</p>
+                                <h4 class="font-bold text-gray-800">${c.titulo}</h4>
+                            </div>
+                        `;
+                    });
+                }
+            }
+            cargarMoodleEstudiante();
+
+            window.entrarAula = function(codigo, materia, titulo) {
+                codigoClaseActual = codigo;
+                document.getElementById('aulaVacia').classList.add('hidden');
+                document.getElementById('aulaActiva').classList.remove('hidden');
+                document.getElementById('viewMateria').innerText = materia;
+                document.getElementById('viewTitulo').innerText = titulo;
+                document.getElementById('boxQuizReal').classList.add('hidden');
+            };
+
+            window.cargarExamenEstudiante = async function() {
+                const response = await fetch(`/api/profesor/obtener-examen/?codigo_clase=${codigoClaseActual}`, {
+                    headers: { 'Authorization': 'Bearer ' + jwtToken }
+                });
+                const data = await response.json();
+                if(response.ok && data.examen) {
+                    idExamenActivo = data.examen.examen_id;
+                    document.getElementById('qPregunta').innerText = data.examen.pregunta;
+                    document.getElementById('qOptA').innerText = `A) ${data.examen.opciones.A}`;
+                    document.getElementById('qOptB').innerText = `B) ${data.examen.opciones.B}`;
+                    document.getElementById('boxQuizReal').classList.remove('hidden');
+                } else {
+                    alert(data.error || "No hay evaluaciones cargadas para este curso.");
+                }
+            };
+
+            window.enviarRespuestaExamen = async function(opcion) {
+                const response = await fetch('/api/profesor/responder-examen/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwtToken },
+                    body: JSON.stringify({ examen_id: idExamenActivo, respuesta: opcion })
+                });
+                const res = await response.json();
+                logger(res);
+                if(response.ok) { alert(`Examen calificado. Resultado: ${res.evaluacion.resultado}`); document.getElementById('boxQuizReal').classList.add('hidden'); cargarBoletinNotas(); }
+            };
+
+            async function cargarBoletinNotas() {
+                const response = await fetch('/api/estudiante/ver-notas/', { headers: { 'Authorization': 'Bearer ' + jwtToken } });
+                const data = await response.json();
+                const tbody = document.getElementById('boletinNotas');
+                if(!tbody) return;
+                tbody.innerHTML = "";
+                if(data.tareas_calificadas) {
+                    data.tareas_calificadas.forEach(t => {
+                        tbody.innerHTML += `<tr><td class="p-2 font-bold">${t.materia} (Deber)</td><td class="p-2 text-center">${t.nota}</td><td class="p-2 text-center text-indigo-700 font-bold">${t.nota_ponderada} / ${t.ponderacion_maxima}</td><td class="p-2 text-green-600 font-bold">Calificado</td></tr>`;
+                    });
+                }
+                if(data.examenes_realizados) {
+                    data.examenes_realizados.forEach(e => {
+                        tbody.innerHTML += `<tr><td class="p-2 font-bold">${e.materia} (Prueba)</td><td class="p-2 text-center">${e.nota}</td><td class="p-2 text-center text-purple-700 font-bold">${e.nota} / 10</td><td class="p-2 text-indigo-600 font-bold">${e.resultado}</td></tr>`;
+                    });
+                }
+            }
+            cargarBoletinNotas();
+
+            const fTarea = document.getElementById('formEntregaTarea');
+            if(fTarea) {
+                fTarea.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData();
+                    formData.append('codigo_clase', codigoClaseActual);
+                    formData.append('tarea', document.getElementById('archivoTarea').files[0]);
+
+                    const response = await fetch('/api/estudiante/subir-tarea/', { method: 'POST', headers: { 'Authorization': 'Bearer ' + jwtToken }, body: formData });
+                    if(response.ok) { alert("Tarea subida con éxito."); cargarBoletinNotas(); }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
